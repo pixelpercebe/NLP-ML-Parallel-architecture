@@ -1,5 +1,6 @@
 /***************************************************
  AC - OpenMP -- SERIE
+ Ivan C, Haritz G, Martin D.
  fun_s.c
  rutinas que se utilizan en el modulo grupopal_s.c
 ****************************************************/
