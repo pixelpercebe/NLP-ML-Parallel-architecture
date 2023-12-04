@@ -15,7 +15,11 @@
 double gendist (float *vec1, float *vec2){
 	// PARA COMPLETAR
 	// calcular la distancia euclidea entre dos vectores
-	return 0.0;
+    int i;
+    double res = 0.0f;
+    for (i=0;i<NDIM;i++)
+        res += (double)pow((vec1[i] - vec2[2]),2);
+	return sqrt(res);
 }
 
 /***********************************************************************************
