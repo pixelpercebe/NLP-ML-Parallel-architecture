@@ -30,7 +30,7 @@ double distpal(float *vec1, float *vec2){
           cent  centroides, una matriz de tamanno ngrupos x NDIM, por referencia
  Salida:  popul grupo mas cercano a cada elemento, vector de tamanno MAXV, por ref.
 ************************************************************************************/
-void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM],
+void grupo_cercano (int nvec, float mvec[][NDIM], float cent[[NDIM],
 		int *popul){
 	// PARA COMPLETAR
     //por cada centroide en cent comparar con un vector de mvec (un total de nvec) y guardar los que menos distancia
@@ -38,7 +38,7 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM],
     double dist,distmin;
     int i, k;
     for (i = 0; i < nvec; i++) {
-        distmin = DBL_MAX; //cada vector se compara con la distancia minima de un double (muy pequeño)
+        distmin = DBL_MAX; //cada vector se compara con la distancia maxima de un double (muy pequeño)
         for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
             dist = distpal(mvec[i], cent[k]);
             if (dist<distmin)
@@ -64,7 +64,12 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM],
 ****************************************************************************************/
 double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float cent[][NDIM],
 		float a[]){
-    //float b[ngrupos];
+    float b[ngrupos];
+    int i,j,k;
+
+    for (i = 0; i<ngrupos;i++)b[i] = 0.0f;
+    for (i = 0; i<MAX_GRUPOS;i++)a[i] = 0.0f;
+
 
     // PARA COMPLETAR
 
@@ -75,7 +80,7 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
     
     // aproximar b[i] de cada cluster
     // ...
-
+    for(i)
     // calcular el ratio s[i] de cada cluster
     // ...
 
