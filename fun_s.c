@@ -5,6 +5,7 @@
 ****************************************************/
 #include <math.h>
 #include <stdlib.h>
+#include <float.h>
 #include "defineg.h" // definiciones
 
 /*******************************************************************
@@ -12,7 +13,7 @@
  Entrada: 2 elementos con NDIM caracteristicas (por referencia)
  Salida:  distancia (double)
 ********************************************************************/
-double gendist (float *vec1, float *vec2){
+double distpal(float *vec1, float *vec2){
 	// PARA COMPLETAR
 	// calcular la distancia euclidea entre dos vectores
     int i;
@@ -32,6 +33,22 @@ double gendist (float *vec1, float *vec2){
 void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM],
 		int *popul){
 	// PARA COMPLETAR
+    //por cada centroide en cent comparar con un vector de mvec (un total de nvec) y guardar los que menos distancia
+    //tengan en popul, teniendo un grupo de X vectores por cada centroide.
+    double dist,distmin;
+    int i, k;
+    for (i = 0; i < nvec; i++) {
+        distmin = DBL_MAX; //cada vector se compara con la distancia minima de un double (muy pequeño)
+        for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
+            dist = distpal(mvec[i], cent[k]);
+            if (dist<distmin)
+            {
+                distmin = dist;
+                popul[i] = k; //guardamos el INDICE DEL CENTROIDE mas cercano, es decir e indice del grupo. Eso para
+                //cada palabra/vector (nvec veces) cada palabra se asigna a un centro, al que este mas cerca.
+            }
+        }
+    }
 	// popul: grupo mas cercano a cada elemento
 }
 
@@ -121,7 +138,7 @@ int nuevos_centroides(float mvec[][NDIM], float cent[][NDIM], int popul[], int n
 				newcent[i][j] = (float)(additions[i][j] / additions[i][NDIM]);
 
 			// decidir si el proceso ha finalizado
-			discent = gendist (&newcent[i][0], &cent[i][0]);
+			discent = distpal(&newcent[i][0], &cent[i][0]);
 			if (discent > DELTA1){
 				fin = 0;  // en alguna centroide hay cambios; continuar
 			}
