@@ -66,6 +66,7 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
 		float a[]){
     float b[ngrupos];
     int i,j,k;
+    double sumdist;
 
     for (i = 0; i<ngrupos;i++)b[i] = 0.0f;
     for (i = 0; i<MAX_GRUPOS;i++)a[i] = 0.0f;
@@ -77,7 +78,24 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
     //		media de las distancia entre todos los elementos del grupo;
     //   	si el numero de elementos del grupo es 0 o 1, densidad = 0
     // ...
-    
+    for (k = 0; k < ngrupos ; k++) {
+        sumdist = 0;
+        for (i = 0; i < listag[k].nvecg;i++) {
+            for (j = i+1; j < listag[k].nvecg; j++)
+            {
+                sumadist += distpal(listag[k].vecg[i], listag[k].vecg[j]);
+            }
+        }
+        if(listag[k].nvecg <= 1)
+        {
+            a[k] = 0
+        }
+        else
+        {
+            a[k] = sumdist/(double)listag[k].nvecg;
+        }
+
+    }
     // aproximar b[i] de cada cluster
     // ...
     for(i)
