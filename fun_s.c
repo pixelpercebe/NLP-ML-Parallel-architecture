@@ -5,8 +5,16 @@
 ****************************************************/
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <float.h>
 #include "defineg.h" // definiciones
+
+/*******************************************************************
+ 1 - Funcion para calcular el maximo entre dos floats.
+ Entrada: 2 elementos.
+ Salida:  El mayor elemento.
+********************************************************************/
+#define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
 /*******************************************************************
  1 - Funcion para calcular la distancia euclidea entre dos vectores
@@ -62,50 +70,58 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[[NDIM],
           cent    centroides, una matriz de tamanno ngrupos x NDIM, por referencia
  Salida:  valor del CVI (double): calidad/bondad de la particion de clusters
 ****************************************************************************************/
-double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float cent[][NDIM],
-		float a[]){
-    float b[ngrupos];
-    int i,j,k;
-    double sumdist;
+double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float cent[][NDIM], float a[]){
+
+    float b[ngrupos]; //medias distancia inter - cluster para cada cluster.
+    float s, max; //s: suma de los ratios ; max : el maximo entre la media intercluster e intra cluster de un cluster.
+    int i,j,k; //k : cluster ; i : palabras ; j : mismo tipo que su bucle anterior, solo en anidados.
+    double sumdist; //suma de las distancias, inter e intra cluster.
+
 
     for (i = 0; i<ngrupos;i++)b[i] = 0.0f;
     for (i = 0; i<MAX_GRUPOS;i++)a[i] = 0.0f;
+    max = 0.0f;
 
-
-    // PARA COMPLETAR
-
-    // aproximar a[i] de cada cluster: calcular la densidad de los grupos;
-    //		media de las distancia entre todos los elementos del grupo;
-    //   	si el numero de elementos del grupo es 0 o 1, densidad = 0
-    // ...
+    //aproximar a[i] de cada cluster: calcular la densidad de los grupos;
+    //media de las distancia entre todos los elementos del grupo;
+    //si el numero de elementos del grupo es 0 o 1, densidad = 0
     for (k = 0; k < ngrupos ; k++) {
         sumdist = 0;
-        for (i = 0; i < listag[k].nvecg;i++) {
-            for (j = i+1; j < listag[k].nvecg; j++)
-            {
-                sumadist += distpal(listag[k].vecg[i], listag[k].vecg[j]);
+        for (i = 0; i < listag[k].nvecg; i++) {
+            for (j = i + 1; j < listag[k].nvecg; j++) {
+                sumdist += distpal(listag[k].vecg[i], listag[k].vecg[j]);
             }
         }
-        if(listag[k].nvecg <= 1)
-        {
-            a[k] = 0
-        }
-        else
-        {
-            a[k] = sumdist/(double)listag[k].nvecg;
-        }
-
+        if (listag[k].nvecg > 1) {
+            //el vector esta inicializado a 0 no hace falta hacer nada si el cluster contiene <= 1 vector.
+            a[k] = sumdist / (float) listag[k].nvecg;}
     }
-    // aproximar b[i] de cada cluster
-    // ...
-    for(i)
-    // calcular el ratio s[i] de cada cluster
-    // ...
 
+    //aproximar b[k] de cada cluster
+    for(k = 0;k<ngrupos;k++){
+        sumdist = 0;
+        for(j = k+1; i<ngrupos;j++)
+        {
+            sumdist += distpal(cent[k], cent[j])
+        }
+        b[k] = sumdist / ngrupos;
+    }
+
+    // calcular el ratio s[k] de cada cluster
+    for (k= 0;k < ngrupos; k++)
+    {
+        max = MAX(a[k],b[k]);
+        if( max != 0.0f){
+            s += (float)(b[k] - a[k] / max)); //se suma cada ratio, sin necesidad de guardarlo.
+        }
+    }
+
+    //se devuelve la media que indica la calidad de la particion (la suma de los ratios s[k] entre el num. de centroides.)
     // promedio y devolver
-    // ...
-    return 0.0;
+    return (double)(s/(float)ngrupos);
 }
+
+
 
 /********************************************************************************************
  4 - Funcion para relizar el analisis de campos UNESCO
