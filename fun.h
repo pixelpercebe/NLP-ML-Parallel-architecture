@@ -10,3 +10,4 @@ extern void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM], str
 
 extern void inicializar_centroides(float cent[][NDIM]);
 extern int nuevos_centroides(float mvec[][NDIM], float cent[][NDIM], int popul[], int nvec);
+extern void swap(int *a, int *b),
