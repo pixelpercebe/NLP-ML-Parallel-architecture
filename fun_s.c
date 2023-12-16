@@ -10,12 +10,37 @@
 #include "defineg.h" // definiciones
 
 /*******************************************************************
- 1 - Funcion para calcular el maximo entre dos floats.
+ Funcion para calcular el maximo entre dos floats.
  Entrada: 2 elementos.
  Salida:  El mayor elemento.
 ********************************************************************/
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
+/*******************************************************************
+ metodo qiucksort gracias a https://www.programiz.com/dsa/quick-sort
+ Entrada: 1 array de floats y dos integers que son el indice mayor y meno del array
+ Salida:  Array con los elementos ordenados de menor a mayor.
+********************************************************************/
+void quickSort(float array[], int low, int high) {
+    if (low < high) {
+
+        // find the pivot element such that
+        // elements smaller than pivot are on left of pivot
+        // elements greater than pivot are on right of pivot
+        int pi = partition(array, low, high);
+
+        // recursive call on the left of pivot
+        quickSort(array, low, pi - 1);
+
+        // recursive call on the right of pivot
+        quickSort(array, pi + 1, high);
+    }
+}
+/*******************************************************************
+ metodo que intercambia la posicion a la que señalas dos punteros entre si.
+ Entrada: 2 punteros que señalan a dos valores float.
+ Salida:  2 punteros a y b con los valores de entrada intercambiados.
+********************************************************************/
 
 void swap(float *a, float *b) {
     int t = *a;
@@ -23,6 +48,11 @@ void swap(float *a, float *b) {
     *b = t;
 }
 
+/*******************************************************************
+ Metodo para encontrar la particiones de la posicion,
+ Entrada: 1 array de floats y dos integers que son el indice mayor y menor a de la particion a ordenar
+ Salida:  Array con los elementos de un segmento ordenados de menor a mayor.
+********************************************************************/
 // function to find the partition position
 int partition(float array[], int low, int high) {
     // select the rightmost element as pivot
@@ -46,26 +76,14 @@ int partition(float array[], int low, int high) {
     return (i + 1);
 }
 
-//metodo qiucksort gracias a https://www.programiz.com/dsa/quick-sort
-void quickSort(float array[], int low, int high) {
-    if (low < high) {
-
-        // find the pivot element such that
-        // elements smaller than pivot are on left of pivot
-        // elements greater than pivot are on right of pivot
-        int pi = partition(array, low, high);
-
-        // recursive call on the left of pivot
-        quickSort(array, low, pi - 1);
-
-        // recursive call on the right of pivot
-        quickSort(array, pi + 1, high);
-    }
-}
-
-double sort_and_median(int size, float data[]){
-    quickSort(data,0,size-1)
-    return data[size/2];
+/*******************************************************************
+ Metodo que ordenar un array y devuelve la media.
+ Entrada: 1 integer, tamaño del array y un array de floats que representa los datos  datos a tratar.
+ Salida:  float que guarda la medaiana de los datos del array.
+********************************************************************/
+double sort_and_median(int tam, float datos[]){
+    quickSort(datos,0,tam-1)
+    return data[tam/2];
 }
 /*******************************************************************
  1 - Funcion para calcular la distancia euclidea entre dos vectores
@@ -73,8 +91,6 @@ double sort_and_median(int size, float data[]){
  Salida:  distancia (double)
 ********************************************************************/
 double distpal(float *vec1, float *vec2){
-	// PARA COMPLETAR
-	// calcular la distancia euclidea entre dos vectores
     int i;
     double res = 0.0f;
     for (i=0;i<NDIM;i++)
@@ -91,7 +107,6 @@ double distpal(float *vec1, float *vec2){
 ************************************************************************************/
 void grupo_cercano (int nvec, float mvec[][NDIM], float cent[NDIM],
 		int *popul){
-	// PARA COMPLETAR
     //por cada centroide en cent comparar con un vector de mvec (un total de nvec) y guardar los que menos distancia
     //tengan en popul, teniendo un grupo de X vectores por cada centroide.
     double dist,distmin;
@@ -182,31 +197,47 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
 *****************************************************************************************/
 void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
 		struct analisis *info_cam){
-	// PARA COMPLETAR
-	// Realizar el analisis de campos UNESCO en los grupos:
-	//    mediana maxima y el grupo en el que se da este maximo (para cada campo)
-	//    mediana minima y su grupo en el que se da este minimo (para cada campo)
 
-    // que campo de la UNESCO esta mas cerca y lejos de cada cluster.
-    int i,cam,k; //i : palabras ; k : cluster; cam : Campo UNESCO
-    float mediana;
-    float relacion[MAXV];
+    int i,cam,k; //i : palabras ; k : cluster; cam : Campo UNESCO.
+    float mediana; //mediana del los valores de la relaciones al campo en una columna de todas las palabras de un grupo.
+    float *relacion; //apuntador al primer valor de las relaciones de las palabras de un cluster con un campo.
 
-    for (cam = 0; cam < NCAM; cam ++)
+
+    //recorremos primero los clusters porque es mas optimo recorrerlos n veces y los campos 23 * n, y no al reves debido a
+    //que no sabemos la cantidad de clusteres.
+    for(k=0; k < ngrupos; k++)
     {
-        for(k=0; k < ngrupos; k++)
+        for (cam = 0; cam < NCAM; cam ++)
         {
+            /**en vez de hacer un array con el numero maximo de palabras como tamaño maximo,
+             * reservamos espacion en memoria por cada cluster
+             * y solo para los elementos de ese cluster.*/
+            relacion = malloc(sizeof (float) * listag[k].nvecg);
             for (i=0;i<MAXV; i++)
             {
                 relacion[i] = 0.0f:
             }
             for (i = 0; i < listag[k].nvecg; i++ )
             {
+                //guardamos las relaciones de cada palabra cone el campo.
                 relacion[i] = mcam[listag[k].vecg[i]][cam]
             }
             //ordenar y calcular la media
-            mediana= sort_and_median(relacion,0, listag[k].nvecg)
+            mediana= sort_and_median(listag[k].nvecg, relacion);
+            //ahora tenemos la media de las relaciones de las palbras de este cluster con repsecto a este campo.
 
+            //comprobamos si es minimo o maximo y actalizamos si lo es.
+            if( mediana > 0 && < info_cam[cam].mmin)
+            {
+                info_cam[cam].mmin = mediana;
+                info_cam[cam].gmin = k;
+            }
+            if(median > info_cam[cam].mmax)
+            {
+                info_cam[cam].mmax = mediana;
+                info_cam[cam].gmax = k;
+            }
+            free(relacion);
         }
     }
 
