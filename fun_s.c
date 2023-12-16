@@ -17,14 +17,14 @@
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
 
-void swap(int *a, int *b) {
+void swap(float *a, float *b) {
     int t = *a;
     *a = *b;
     *b = t;
 }
 
 // function to find the partition position
-int partition(int array[], int low, int high) {
+int partition(float array[], int low, int high) {
     // select the rightmost element as pivot
     int pivot = array[high];
     // pointer for greater element
@@ -47,7 +47,7 @@ int partition(int array[], int low, int high) {
 }
 
 //metodo qiucksort gracias a https://www.programiz.com/dsa/quick-sort
-void quickSort(int array[], int low, int high) {
+void quickSort(float array[], int low, int high) {
     if (low < high) {
 
         // find the pivot element such that
@@ -61,6 +61,11 @@ void quickSort(int array[], int low, int high) {
         // recursive call on the right of pivot
         quickSort(array, pi + 1, high);
     }
+}
+
+double sort_and_median(int size, float data[]){
+    quickSort(data,0,size-1)
+    return data[size/2];
 }
 /*******************************************************************
  1 - Funcion para calcular la distancia euclidea entre dos vectores
@@ -191,14 +196,16 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
     {
         for(k=0; k < ngrupos; k++)
         {
-            for ()
+            for (i=0;i<MAXV; i++)
             {
-            //limpiar relacion. 0.0 todo 
+                relacion[i] = 0.0f:
             }
             for (i = 0; i < listag[k].nvecg; i++ )
             {
                 relacion[i] = mcam[listag[k].vecg[i]][cam]
             }
+            //ordenar y calcular la media
+            mediana= sort_and_median(relacion,0, listag[k].nvecg)
 
         }
     }
