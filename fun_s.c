@@ -203,8 +203,6 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
     float *relacion; //apuntador al primer valor de las relaciones de las palabras de un cluster con un campo.
 
 
-    //recorremos primero los clusters porque es mas optimo recorrerlos n veces y los campos 23 * n, y no al reves debido a
-    //que no sabemos la cantidad de clusteres.
     for(k=0; k < ngrupos; k++)
     {
         for (cam = 0; cam < NCAM; cam ++)
