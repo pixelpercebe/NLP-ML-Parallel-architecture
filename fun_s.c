@@ -2,6 +2,7 @@
  AC - OpenMP -- SERIE
  fun_s.c
  rutinas que se utilizan en el modulo grupopal_s.c
+ ./grupopal_s ../../ARQ/ppalabras/vecpal.dat ../../ARQ/ppalabras/campos.dat [1000]
 ****************************************************/
 #include <math.h>
 #include <stdlib.h>
@@ -22,12 +23,13 @@
  Salida:  Array con los elementos ordenados de menor a mayor.
 ********************************************************************/
 void quickSort(float array[], int low, int high) {
+    int pi;
     if (low < high) {
 
         // find the pivot element such that
         // elements smaller than pivot are on left of pivot
         // elements greater than pivot are on right of pivot
-        int pi = partition(array, low, high);
+        pi = partition(array,low,high);
 
         // recursive call on the left of pivot
         quickSort(array, low, pi - 1);
@@ -82,8 +84,8 @@ int partition(float array[], int low, int high) {
  Salida:  float que guarda la medaiana de los datos del array.
 ********************************************************************/
 double sort_and_median(int tam, float datos[]){
-    quickSort(datos,0,tam-1)
-    return data[tam/2];
+    quickSort(datos,0,tam-1);
+    return datos[tam/2];
 }
 /*******************************************************************
  1 - Funcion para calcular la distancia euclidea entre dos vectores
@@ -213,24 +215,24 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
             relacion = malloc(sizeof (float) * listag[k].nvecg);
             for (i=0;i<MAXV; i++)
             {
-                relacion[i] = 0.0f:
+                relacion[i] = 0.0f;
             }
             for (i = 0; i < listag[k].nvecg; i++ )
             {
                 //guardamos las relaciones de cada palabra cone el campo.
-                relacion[i] = mcam[listag[k].vecg[i]][cam]
+                relacion[i] = mcam[listag[k].vecg[i]][cam];
             }
             //ordenar y calcular la media
             mediana= sort_and_median(listag[k].nvecg, relacion);
             //ahora tenemos la media de las relaciones de las palbras de este cluster con repsecto a este campo.
 
             //comprobamos si es minimo o maximo y actalizamos si lo es.
-            if( mediana > 0 && < info_cam[cam].mmin)
+            if( mediana > 0 && mediana < info_cam[cam].mmin)
             {
                 info_cam[cam].mmin = mediana;
                 info_cam[cam].gmin = k;
             }
-            if(median > info_cam[cam].mmax)
+            if(mediana > info_cam[cam].mmax)
             {
                 info_cam[cam].mmax = mediana;
                 info_cam[cam].gmax = k;
