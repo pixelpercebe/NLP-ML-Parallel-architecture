@@ -57,6 +57,7 @@ void swap(float *a, float *b) {
 ********************************************************************/
 // function to find the partition position
 int partition(float array[], int low, int high) {
+
     // select the rightmost element as pivot
     int pivot = array[high];
     // pointer for greater element
@@ -75,6 +76,7 @@ int partition(float array[], int low, int high) {
     // swap the pivot element with the greater element at i
     swap(&array[i + 1], &array[high]);
     // return the partition point
+
     return (i + 1);
 }
 
@@ -84,7 +86,10 @@ int partition(float array[], int low, int high) {
  Salida:  float que guarda la medaiana de los datos del array.
 ********************************************************************/
 double sort_and_median(int tam, float datos[]){
+
     quickSort(datos,0,tam-1);
+    for (int i = 0; i<tam;i++)
+        //printf("\n%f",datos[i]);
     return datos[tam/2];
 }
 /*******************************************************************
@@ -113,6 +118,7 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[NDIM],
     //tengan en popul, teniendo un grupo de X vectores por cada centroide.
     double dist,distmin;
     int i, k;
+
     for (i = 0; i < nvec; i++) {
         distmin = DBL_MAX; //cada vector se compara con la distancia maxima de un double (muy pequeño)
         for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
@@ -145,9 +151,8 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
     int i,j,k; //k : cluster ; i : palabras ; j : mismo tipo que su bucle anterior, solo en anidados.
     double sumdist; //suma de las distancias, inter e intra cluster.
 
-
     for (i = 0; i<ngrupos;i++)b[i] = 0.0f;
-    for (i = 0; i<MAX_GRUPOS;i++)a[i] = 0.0f;
+    for (i = 0; i<ngrupos;i++)a[i] = 0.0f;
     max = 0.0f;
 
     //aproximar a[i] de cada cluster: calcular la densidad de los grupos;
@@ -157,7 +162,7 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
         sumdist = 0;
         for (i = 0; i < listag[k].nvecg; i++) {
             for (j = i + 1; j < listag[k].nvecg; j++) {
-                sumdist += distpal((float*)&listag[k].vecg[i],(float*)&listag[k].vecg[j]);
+                sumdist += distpal(mvec[listag[k].vecg[i]],mvec[listag[k].vecg[j]]);
             }
         }
         if (listag[k].nvecg > 1) {
@@ -183,7 +188,6 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
             s += (float)(b[k] - a[k] / max); //se suma cada ratio, sin necesidad de guardarlo.
         }
     }
-
     //se devuelve la media que indica la calidad de la particion (la suma de los ratios s[k] entre el num. de centroides.)
     // promedio y devolver
     return (double)(s/(float)ngrupos);
@@ -204,7 +208,6 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
     float mediana; //mediana del los valores de la relaciones al campo en una columna de todas las palabras de un grupo.
     float *relacion; //apuntador al primer valor de las relaciones de las palabras de un cluster con un campo.
 
-
     for(k=0; k < ngrupos; k++)
     {
         for (cam = 0; cam < NCAM; cam ++)
@@ -212,8 +215,9 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
             /**en vez de hacer un array con el numero maximo de palabras como tamaño maximo,
              * reservamos espacion en memoria por cada cluster
              * y solo para los elementos de ese cluster.*/
+
             relacion = malloc(sizeof (float) * listag[k].nvecg);
-            for (i=0;i<MAXV; i++)
+            for (i=0;i<listag[k].nvecg; i++)
             {
                 relacion[i] = 0.0f;
             }
@@ -240,7 +244,6 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
             free(relacion);
         }
     }
-
 }
 
 /*************************************
