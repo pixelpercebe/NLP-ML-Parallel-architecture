@@ -2,7 +2,7 @@
  AC - OpenMP -- SERIE
  fun_s.c
  rutinas que se utilizan en el modulo grupopal_s.c
- ./grupopal_s ../../ARQ/ppalabras/vecpal.dat ../../ARQ/ppalabras/campos.dat [1000]
+ ./grupopal_s ../../ARQ/ppalabras/vecpal.dat ../../ARQ/ppalabras/campos.dat 1000
 ****************************************************/
 #include <math.h>
 #include <stdlib.h>
@@ -88,8 +88,6 @@ int partition(float array[], int low, int high) {
 double sort_and_median(int tam, float datos[]){
 
     quickSort(datos,0,tam-1);
-    for (int i = 0; i<tam;i++)
-        //printf("\n%f",datos[i]);
     return datos[tam/2];
 }
 /*******************************************************************
@@ -101,7 +99,7 @@ double distpal(float *vec1, float *vec2){
     int i;
     double res = 0.0f;
     for (i=0;i<NDIM;i++)
-        res += (double)pow((vec1[i] - vec2[2]),2);
+        res += pow((double)(vec1[i] - vec2[i]),2);
 	return sqrt(res);
 }
 
@@ -112,8 +110,7 @@ double distpal(float *vec1, float *vec2){
           cent  centroides, una matriz de tamanno ngrupos x NDIM, por referencia
  Salida:  popul grupo mas cercano a cada elemento, vector de tamanno MAXV, por ref.
 ************************************************************************************/
-void grupo_cercano (int nvec, float mvec[][NDIM], float cent[NDIM],
-		int *popul){
+void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM], int *popul){
     //por cada centroide en cent comparar con un vector de mvec (un total de nvec) y guardar los que menos distancia
     //tengan en popul, teniendo un grupo de X vectores por cada centroide.
     double dist,distmin;
@@ -122,7 +119,9 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[NDIM],
     for (i = 0; i < nvec; i++) {
         distmin = DBL_MAX; //cada vector se compara con la distancia maxima de un double (muy pequeño)
         for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
-            dist = distpal(mvec[i], &cent[k]);
+            //printf("\nmvec: %lf; centroide:%f",&mvec[i],cent[k]);
+            dist = distpal(mvec[i], cent[k]);
+            //printf("\ndist: %f",dist);
             if (dist<distmin)
             {
                 distmin = dist;
@@ -167,7 +166,7 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
         }
         if (listag[k].nvecg > 1) {
             //el vector esta inicializado a 0 no hace falta hacer nada si el cluster contiene <= 1 vector.
-            a[k] = sumdist / (float) listag[k].nvecg;}
+            a[k] = sumdist / (float)(listag[k].nvecg);}
     }
 
     //aproximar b[k] de cada cluster
@@ -188,6 +187,7 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
             s += (float)(b[k] - a[k] / max); //se suma cada ratio, sin necesidad de guardarlo.
         }
     }
+
     //se devuelve la media que indica la calidad de la particion (la suma de los ratios s[k] entre el num. de centroides.)
     // promedio y devolver
     return (double)(s/(float)ngrupos);
