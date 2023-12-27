@@ -25,16 +25,8 @@
 void quickSort(float array[], int low, int high) {
     int pi;
     if (low < high) {
-
-        // find the pivot element such that
-        // elements smaller than pivot are on left of pivot
-        // elements greater than pivot are on right of pivot
         pi = partition(array,low,high);
-
-        // recursive call on the left of pivot
         quickSort(array, low, pi - 1);
-
-        // recursive call on the right of pivot
         quickSort(array, pi + 1, high);
     }
 }
@@ -45,7 +37,7 @@ void quickSort(float array[], int low, int high) {
 ********************************************************************/
 
 void swap(float *a, float *b) {
-    int t = *a;
+    float t = *a;
     *a = *b;
     *b = t;
 }
@@ -59,7 +51,7 @@ void swap(float *a, float *b) {
 int partition(float array[], int low, int high) {
 
     // select the rightmost element as pivot
-    int pivot = array[high];
+    float pivot = array[high];
     // pointer for greater element
     int i = (low - 1);
     // traverse each element of the array
@@ -85,7 +77,7 @@ int partition(float array[], int low, int high) {
  Entrada: 1 integer, tamaño del array y un array de floats que representa los datos  datos a tratar.
  Salida:  float que guarda la medaiana de los datos del array.
 ********************************************************************/
-double sort_and_median(int tam, float datos[]){
+double sort_and_median(int tam, float* datos){
 
     quickSort(datos,0,tam-1);
     return datos[tam/2];
@@ -208,6 +200,12 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
     float mediana; //mediana del los valores de la relaciones al campo en una columna de todas las palabras de un grupo.
     float *relacion; //apuntador al primer valor de las relaciones de las palabras de un cluster con un campo.
 
+    for (int i = 0; i<NCAM ; i++)
+    {
+        info_cam[i].mmin = FLT_MAX;
+        info_cam[i].mmax = 0.0f;
+    }
+
     for(k=0; k < ngrupos; k++)
     {
         for (cam = 0; cam < NCAM; cam ++)
@@ -228,6 +226,7 @@ void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
             }
             //ordenar y calcular la media
             mediana= sort_and_median(listag[k].nvecg, relacion);
+            printf("\nmediana: %f", mediana);
             //ahora tenemos la media de las relaciones de las palbras de este cluster con repsecto a este campo.
 
             //comprobamos si es minimo o maximo y actalizamos si lo es.
