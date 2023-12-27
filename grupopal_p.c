@@ -101,13 +101,21 @@ int main (int argc, char *argv[]) {
 		// B: Calcular la "calidad" del agrupamiento
 		// =========================================
 		// lista de clusters: numero de elementos y su clasificacion
-		for (i=0; i<ngrupos; i++) listag[i].nvecg = 0;
-		for (i=0; i<nvec; i++){
-			grupo = popul[i];
-			num=listag[grupo].nvecg;
-			listag[grupo].vecg[num] = i; // vectores de cada grupo (cluster)
-			listag[grupo].nvecg++;
-		}
+#pragma omp parallel default(none) private(i,grupo) shared(listag,popul,nvec,ngrupos)
+    {
+#pragma omp for
+        for (i = 0; i < ngrupos; i++) listag[i].nvecg = 0;
+#pragma omp for
+        for (i = 0; i < nvec; i++)
+        {
+            grupo = popul[i];
+#pragma omp critical
+            {
+                listag[grupo].vecg[listag[grupo].nvecg] = i; // vectores de cada grupo (cluster)
+                listag[grupo].nvecg++;
+            }
+        }
+    }
 		
 		// silhouette: calidad de la particion de clusters
 		sil = silhouette_simple(mvec, listag, cent, a);
