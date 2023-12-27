@@ -1,8 +1,10 @@
 /***************************************************
- AC - OpenMP -- SERIE
- fun_s.c
- rutinas que se utilizan en el modulo grupopal_s.c
- ./grupopal_s ../../ARQ/ppalabras/vecpal.dat ../../ARQ/ppalabras/campos.dat 1000
+ AC - OpenMP -- PARALELO
+ fun_p.c
+ rutinas que se utilizan en el modulo grupopal_p.c
+
+ gcc -O2 -o grupopal_p grupopal_p.c fun_p.c -lm -fopenmp
+ ./grupopal_p ../../ARQ/ppalabras/vecpal.dat ../../ARQ/ppalabras/campos.dat 1000
 ****************************************************/
 #include <math.h>
 #include <stdlib.h>
@@ -107,21 +109,19 @@ void grupo_cercano (int nvec, float mvec[][NDIM], float cent[][NDIM], int *popul
     //tengan en popul, teniendo un grupo de X vectores por cada centroide.
     double dist,distmin;
     int i, k;
-
-    for (i = 0; i < nvec; i++) {
-        distmin = DBL_MAX; //cada vector se compara con la distancia maxima de un double (muy pequeño)
-        for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
-            //printf("\nmvec: %lf; centroide:%f",&mvec[i],cent[k]);
-            dist = distpal(mvec[i], cent[k]);
-            //printf("\ndist: %f",dist);
-            if (dist<distmin)
-            {
-                distmin = dist;
-                popul[i] = k; //guardamos el INDICE DEL CENTROIDE mas cercano, es decir e indice del grupo. Eso para
-                //cada palabra/vector (nvec veces) cada palabra se asigna a un centro, al que este mas cerca.
+#pragma omp parallel for default(none) shared(nvec,ngrupos,mvec,cent,popul) private(distmin,dist,i,k)
+        for (i = 0; i < nvec; i++) {
+            distmin = DBL_MAX; //cada vector se compara con la distancia maxima de un double (muy pequeño)
+            for (k = 0; k < ngrupos; k++) { //hay un total de ngrupos de centroides de NDIM dimensiones.
+                dist = distpal(mvec[i], cent[k]);
+                if (dist<distmin)
+                {
+                    distmin = dist;
+                    popul[i] = k; //guardamos el INDICE DEL CENTROIDE mas cercano, es decir e indice del grupo. Eso para
+                    //cada palabra/vector (nvec veces) cada palabra se asigna a un centro, al que este mas cerca.
+                }
             }
         }
-    }
 	// popul: grupo mas cercano a cada elemento
 }
 
@@ -141,45 +141,50 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
     float s, max; //s: suma de los ratios ; max : el maximo entre la media intercluster e intra cluster de un cluster.
     int i,j,k; //k : cluster ; i : palabras ; j : mismo tipo que su bucle anterior, solo en anidados.
     double sumdist; //suma de las distancias, inter e intra cluster.
-
-    for (i = 0; i<ngrupos;i++)b[i] = 0.0f;
-    for (i = 0; i<ngrupos;i++)a[i] = 0.0f;
     max = 0.0f;
+#pragma omp parallel default(none) shared(ngrupos,mvec,listag, cent,a,b, sumdist) private(i,k,j)
+    {
+#pragma omp for
+        for (i = 0; i < ngrupos; i++)b[i] = 0.0f;
+#pragma omp for
+        for (i = 0; i < ngrupos; i++)a[i] = 0.0f;
 
-    //aproximar a[i] de cada cluster: calcular la densidad de los grupos;
-    //media de las distancia entre todos los elementos del grupo;
-    //si el numero de elementos del grupo es 0 o 1, densidad = 0
-    for (k = 0; k < ngrupos ; k++) {
-        sumdist = 0;
-        for (i = 0; i < listag[k].nvecg; i++) {
-            for (j = i + 1; j < listag[k].nvecg; j++) {
-                sumdist += distpal(mvec[listag[k].vecg[i]],mvec[listag[k].vecg[j]]);
+        //aproximar a[i] de cada cluster: calcular la densidad de los grupos;
+        //media de las distancia entre todos los elementos del grupo;
+        //si el numero de elementos del grupo es 0 o 1, densidad = 0
+#pragma omp for nowait reduction(+:sumdist)
+        for (k = 0; k < ngrupos; k++) {
+            sumdist = 0;
+            for (i = 0; i < listag[k].nvecg; i++) {
+                for (j = i + 1; j < listag[k].nvecg; j++) {
+                    sumdist += distpal(mvec[listag[k].vecg[i]], mvec[listag[k].vecg[j]]);
+                }
+            }
+            if (listag[k].nvecg > 1) {
+                //el vector esta inicializado a 0 no hace falta hacer nada si el cluster contiene <= 1 vector.
+                a[k] = sumdist / (float) (listag[k].nvecg);
             }
         }
-        if (listag[k].nvecg > 1) {
-            //el vector esta inicializado a 0 no hace falta hacer nada si el cluster contiene <= 1 vector.
-            a[k] = sumdist / (float)(listag[k].nvecg);}
-    }
 
-    //aproximar b[k] de cada cluster
-    for(k = 0;k<ngrupos;k++){
-        sumdist = 0;
-        for(j = k+1; j<ngrupos;j++)
-        {
-            sumdist += distpal(cent[k], cent[j]);
+        //aproximar b[k] de cada cluster
+#pragma omp for nowait reduction(+:sumdist)
+        for (k = 0; k < ngrupos; k++) {
+            sumdist = 0;
+            for (j = k + 1; j < ngrupos; j++) {
+                sumdist += distpal(cent[k], cent[j]);
+            }
+            b[k] = sumdist / ngrupos;
         }
-        b[k] = sumdist / ngrupos;
     }
 
     // calcular el ratio s[k] de cada cluster
-    for (k= 0;k < ngrupos; k++)
-    {
-        max = MAX(a[k],b[k]);
-        if( max != 0.0f){
-            s += (float)(b[k] - a[k] / max); //se suma cada ratio, sin necesidad de guardarlo.
+    s= 0.0f;
+    for (k = 0; k < ngrupos; k++) {
+        max = MAX(a[k], b[k]);
+        if (max != 0.0f) {
+            s += (float) (b[k] - a[k] / max); //se suma cada ratio, sin necesidad de guardarlo.
         }
     }
-
     //se devuelve la media que indica la calidad de la particion (la suma de los ratios s[k] entre el num. de centroides.)
     // promedio y devolver
     return (double)(s/(float)ngrupos);
@@ -193,58 +198,52 @@ double silhouette_simple(float mvec[][NDIM], struct lista_grupos *listag, float 
            mcam     campos, una matriz de tamaño MAXV x NCAM, por referencia
  Salida:   info_cam vector de NCAM structs (informacion del analisis realizado), por ref.
 *****************************************************************************************/
-void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],
-		struct analisis *info_cam){
+void analisis_campos(struct lista_grupos *listag, float mcam[][NCAM],struct analisis *info_cam) {
 
-    int i,cam,k; //i : palabras ; k : cluster; cam : Campo UNESCO.
+    int i, cam, k; //i : palabras ; k : cluster; cam : Campo UNESCO.
     float mediana; //mediana del los valores de la relaciones al campo en una columna de todas las palabras de un grupo.
     float *relacion; //apuntador al primer valor de las relaciones de las palabras de un cluster con un campo.
-
-    for (int i = 0; i<NCAM ; i++)
-    {
-        info_cam[i].mmin = FLT_MAX;
-        info_cam[i].mmax = 0.0f;
-    }
-
-    for(k=0; k < ngrupos; k++)
-    {
-        for (cam = 0; cam < NCAM; cam ++)
-        {
-            /**en vez de hacer un array con el numero maximo de palabras como tamaño maximo,
-             * reservamos espacion en memoria por cada cluster
-             * y solo para los elementos de ese cluster.*/
-
-            relacion = malloc(sizeof (float) * listag[k].nvecg);
-            for (i=0;i<listag[k].nvecg; i++)
+#pragma omp parallel default(none) private(i, k, cam,mediana,relacion) shared(ngrupos,listag, mcam, info_cam)
+{
+    #pragma omp for nowait
+        for (i = 0; i < NCAM; i++) {
+            info_cam[i].mmin = FLT_MAX;
+            info_cam[i].mmax = 0.0f;
+        }
+    #pragma omp for nowait schedule(dynamic)
+        for (k = 0; k < ngrupos; k++) {
+            for (cam = 0; cam < NCAM; cam++)
             {
-                relacion[i] = 0.0f;
-            }
-            for (i = 0; i < listag[k].nvecg; i++ )
-            {
-                //guardamos las relaciones de cada palabra cone el campo.
-                relacion[i] = mcam[listag[k].vecg[i]][cam];
-            }
-            //ordenar y calcular la media
-            mediana= sort_and_median(listag[k].nvecg, relacion);
-            printf("\nmediana: %f", mediana);
-            //ahora tenemos la media de las relaciones de las palbras de este cluster con repsecto a este campo.
+                /**en vez de hacer un array con el numero maximo de palabras como tamaño maximo,
+                * reservamos espacion en memoria por cada cluster
+                * y solo para los elementos de ese cluster.*/
 
-            //comprobamos si es minimo o maximo y actalizamos si lo es.
-            if( mediana > 0 && mediana < info_cam[cam].mmin)
-            {
-                info_cam[cam].mmin = mediana;
-                info_cam[cam].gmin = k;
+                relacion = malloc(sizeof(float) * listag[k].nvecg);
+                for (i = 0; i < listag[k].nvecg; i++) {
+                    relacion[i] = 0.0f;
+                }
+                for (i = 0; i < listag[k].nvecg; i++) {
+                    //guardamos las relaciones de cada palabra cone el campo.
+                    relacion[i] = mcam[listag[k].vecg[i]][cam];
+                }
+                //ordenar y calcular la media
+                mediana = sort_and_median(listag[k].nvecg, relacion);
+                //ahora tenemos la media de las relaciones de las palbras de este cluster con repsecto a este campo.
+
+                //comprobamos si es minimo o maximo y actalizamos si lo es.
+                if (mediana > 0 && mediana < info_cam[cam].mmin) {
+                    info_cam[cam].mmin = mediana;
+                    info_cam[cam].gmin = k;
+                }
+                if (mediana > info_cam[cam].mmax) {
+                    info_cam[cam].mmax = mediana;
+                    info_cam[cam].gmax = k;
+                }
+                free(relacion);
             }
-            if(mediana > info_cam[cam].mmax)
-            {
-                info_cam[cam].mmax = mediana;
-                info_cam[cam].gmax = k;
-            }
-            free(relacion);
         }
     }
 }
-
 /*************************************
    OTRAS FUNCIONES DE LA APLICACION
 **************************************/
@@ -265,35 +264,41 @@ int nuevos_centroides(float mvec[][NDIM], float cent[][NDIM], int popul[], int n
 	double discent;
 	double additions[ngrupos][NDIM+1];
 	float newcent[ngrupos][NDIM];
+    #pragma omp parallel default(none) shared(ngrupos,nvec,mvec,cent,popul,newcent,additions,fin) private(discent,i,j)
+        {
+    #pragma omp for
+            for (i = 0; i < ngrupos; i++)
+                for (j = 0; j < NDIM + 1; j++)
+                    additions[i][j] = 0.0;
 
-	for (i=0; i<ngrupos; i++)
-		for (j=0; j<NDIM+1; j++)
-			additions[i][j] = 0.0;
+            // acumular los valores de cada caracteristica; numero de elementos al final
+    #pragma omp for nowait reduction(+:additions[:ngrupos][:NDIM+1])
+            for (i = 0; i < nvec; i++) {
+                for (j = 0; j < NDIM; j++) additions[popul[i]][j] += mvec[i][j];
+                additions[popul[i]][NDIM]++;
+            }
 
-	// acumular los valores de cada caracteristica; numero de elementos al final
-	for (i=0; i<nvec; i++){
-		for (j=0; j<NDIM; j++) additions[popul[i]][j] += mvec[i][j];
-		additions[popul[i]][NDIM]++;
-	}
+            // calcular los nuevos centroides y decidir si el proceso ha finalizado o no (en funcion de DELTA
+    #pragma omp single
+            fin = 1;
+    #pragma omp for
+            for (i = 0; i < ngrupos; i++) {
+                if (additions[i][NDIM] > 0) { // ese grupo (cluster) no esta vacio
+                    // media de cada caracteristica
+                    for (j = 0; j < NDIM; j++)
+                        newcent[i][j] = (float) (additions[i][j] / additions[i][NDIM]);
 
-	// calcular los nuevos centroides y decidir si el proceso ha finalizado o no (en funcion de DELTA)
-	fin = 1;
-	for (i=0; i<ngrupos; i++){
-		if (additions[i][NDIM] > 0) { // ese grupo (cluster) no esta vacio
-			// media de cada caracteristica
-			for (j=0; j<NDIM; j++)
-				newcent[i][j] = (float)(additions[i][j] / additions[i][NDIM]);
+                    // decidir si el proceso ha finalizado
+                    discent = distpal(&newcent[i][0], &cent[i][0]);
+                    if (discent > DELTA1) {
+                    fin = 0;  // en alguna centroide hay cambios; continuar
+                    }
 
-			// decidir si el proceso ha finalizado
-			discent = distpal(&newcent[i][0], &cent[i][0]);
-			if (discent > DELTA1){
-				fin = 0;  // en alguna centroide hay cambios; continuar
-			}
-
-			// copiar los nuevos centroides
-			for (j=0; j<NDIM; j++)
-				cent[i][j] = newcent[i][j];
-		}
-	}
+                    // copiar los nuevos centroides
+                    for (j = 0; j < NDIM; j++)
+                        cent[i][j] = newcent[i][j];
+                }
+            }
+        }
 	return fin;
 }
