@@ -175,13 +175,13 @@ $$
  0 & |c_k| \leq          1.\end{cases}
 $$
 
-    El valor $[b_{k}]$ representa una estimación de la distancia inter-clúster del clúster $k$. Para lograr esto, se realiza el promedio de todas las distancias entre el centroide del clúster $k$ y los demás centroides presentes. Esta medida nos proporciona una noción de qué tan distanciado se encuentra el clúster $k$ con respecto a los demás clústeres.
+El valor $[b_{k}]$ representa una estimación de la distancia inter-clúster del clúster $k$. Para lograr esto, se realiza el promedio de todas las distancias entre el centroide del clúster $k$ y los demás centroides presentes. Esta medida nos proporciona una noción de qué tan distanciado se encuentra el clúster $k$ con respecto a los demás clústeres.
 
 $$
 b(k) = \displaystyle\frac{1}{\lvert C\rvert-1} \sum_{c_p \in C} d(c_k, c_p)
 $$
 
-    La formula para calcular el valor de Silhouette $S$ es la siguiente:
+La formula para calcular el valor de Silhouette $S$ es la siguiente:
 
 $$
 S = \frac{1}{|C|} \sum_{c_k \in C} s(k)
