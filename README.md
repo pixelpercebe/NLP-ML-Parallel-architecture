@@ -42,7 +42,7 @@ Como complemento adicional, también nos permite realizar un seguimiento del est
 
 ![*Interfaz con el consumo de recursos del cluster.*](images/carga.png)
 
-Esta función de CLion junto al comando de linux TOP para ver los procesos que más recursos consumen y la cantidad de usuarios conectados ha sido especialmente útil para saber cuál era el momento correcto de para hacer las ejecuciones de nuestro código y así sacar el tiempo real que tarda nuestro programa en analizar todas las palabras, aprovechando los momentos de menos carga de la CPU para hacer las pruebas. Normalmente entre las 2 a.m y las 10 a.m \newpage
+Esta función de CLion junto al comando de linux TOP para ver los procesos que más recursos consumen y la cantidad de usuarios conectados ha sido especialmente útil para saber cuál era el momento correcto de para hacer las ejecuciones de nuestro código y así sacar el tiempo real que tarda nuestro programa en analizar todas las palabras, aprovechando los momentos de menos carga de la CPU para hacer las pruebas. Normalmente entre las 2 a.m y las 10 a.m
 
 ![*Comando TOP ejecutandose en la terminal de CLion.*](images/Untitled.png)
 
