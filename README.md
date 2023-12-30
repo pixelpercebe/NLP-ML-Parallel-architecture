@@ -62,13 +62,13 @@ Esta API nos permite especificar secciones de código que pueden ejecutarse en p
 
 OpenMP sigue un modelo de programación de memoria compartida, donde los hilos comparten el mismo espacio de memoria.
 
-![*representación gráfica de la creación de 2 hilos desde el mismo espacio de memoria.*](images/shared%20memory.png){width="220"}
+![*representación gráfica de la creación de 2 hilos desde el mismo espacio de memoria.*](images/shared%20memory.png)
 
 Una de las funciones que hemos utilizado a lo largo del proyecto ha sido set_omp_num_threads(), que permite establecer el número de hilos que se deben utilizar para ejecutar una tarea en paralelo. Además de esta función, OpenMP ofrece otras como omp_get_num_threads(), omp_get_thread_num() y omp_get_max_threads(), entre muchas otras.
 
 Durante este proyecto nos hemos centrado en el uso de directivas que se indican mediante el uso de *pragma.* Estas directivas nos permiten crear regiones paralelas dentro de nuestro código donde trabajaran los nucleos asignados siguiendo el **modelo FORK-JOIN**. El uso de este modelo implica la creación de duplicados de un hilo, llamados hilos secundarios, los cuales se dedican a ejecutar una tarea simultáneamente al hilo principal o maestro. Una vez que los hilos secundarios han completado su tarea, se unen nuevamente al hilo maestro para continuar la ejecución del código en secuencia.
 
-![Modelo FORK-JOIN](images/openmp.png){width="381"}
+![Modelo FORK-JOIN](images/openmp.png)
 
 
 ## 2.2 Algoritmo de Clusterización:
@@ -530,7 +530,6 @@ Se van a analizar los procesos que se han seguido y las directivas y cláusulas 
         }
         ```
 
-        \vspace{0.5cm}
 
     -   **`nuevos_centroides():`** También hemos decidido paralelizar el codigo que ya se nos proporcionada, debido a que contiene numerosos bucles anidado que reducen la eficiencia del programa.\
         Se emplea paralelismo en las secciones de inicialización, acumulación de valores de características y cálculo de nuevos centroides. No hay secciones críticas identificadas. Sin embargo, el uso de una variable compartida (`fin`) que determina si el proceso ha finalizado o no, puede generar problemas si cada hilo es capaz de cambiarla. La directiva `single` asegura que solo un hilo modifique esta variable, lo que previene problemas de concurrencia, ya que la variable indica si hay cambios en algun centroide y es suficiente con que se cumpla en uno.
@@ -667,8 +666,6 @@ Tras ejecutar el código aproximadamente 126 veces, (3 veces por numero de hilo 
 | **64**        | 52,742079              | 10,02361861                    | 0,1566190408   |
 
 : Datos para 211000 palabras
-
-\newpage
 
 ### 3.3.3 Gráficos de los resultados y análisis:
 
