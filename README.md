@@ -1,3 +1,5 @@
+**PDF:** <a href="[https://github.com/pixelpercebe/NLP-ML-Parallel-architecture/blob/main/README.pdf]">Ver informe/memoria de proyecto.</a>
+
 ﻿# 1.Introducción
 
 En este proyecto se aborda el desarrollo de un sistema multiprocesador para procesamiento y el análisis de una gran cantidad de palabras, con el objetivo de lograr la mayor rapidez y eficiencia utilizando la librería OpenMP para el lenguaje de programación C. Para ello las palabras son diferenciadas en clusters/grupos conceptuales dependiendo de las características que tienen en común entre ellas utilizando el algoritmo de clustering K-means. Además cada uno de estos grupos de palabras se relaciona con uno de los 23 distintos campos de Unesco asociados a un campo de la ciencia o la tecnología, dependiendo de la mediana de las probabilidades de presencia del grupo en cada campo.
