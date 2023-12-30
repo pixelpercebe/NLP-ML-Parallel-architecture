@@ -1,4 +1,5 @@
-**PDF:** <a href="[https://github.com/pixelpercebe/NLP-ML-Parallel-architecture/blob/main/README.pdf]">Ver informe/memoria de proyecto.</a>
+**PDF:** 
+<a href="[https://github.com/pixelpercebe/NLP-ML-Parallel-architecture/blob/main/README.pdf]">See project report/memory.</a>
 
 ﻿# 1.Introducción
 
