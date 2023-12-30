@@ -170,15 +170,16 @@ $$dis(p,q) = \sqrt{\displaystyle\sum_{i=1}^n (p_{i} - q_{i})}$$
 
     El valor $[a_{k}]$ es una estimación de la distancia intra-clúster del clúster $k$, determinando esto a través del cálculo promedio de todas las distancias entre los elementos que pertenecen a dicho clúster. Esta medida proporciona la cohesión o compacidad de los elementos dentro del clúster $k$.
 
-    $$
-        a(k) = \begin{cases}\frac{1}{\lvert c_k \rvert ^{2}} \sum_{x_i \in C_k} \sum_{x_j \in C_k} d(x_i, x_j) & |c_k| > 1, \\0 & |c_k| \leq          1.\end{cases}
-    $$
+$$
+	a(k) = \begin{cases}\frac{1}{\lvert c_k \rvert ^{2}} \sum_{x_i \in C_k} \sum_{x_j \in C_k} d(x_i, x_j) & |c_k| > 1\\ 
+ 0 & |c_k| \leq          1.\end{cases}
+$$
 
     El valor $[b_{k}]$ representa una estimación de la distancia inter-clúster del clúster $k$. Para lograr esto, se realiza el promedio de todas las distancias entre el centroide del clúster $k$ y los demás centroides presentes. Esta medida nos proporciona una noción de qué tan distanciado se encuentra el clúster $k$ con respecto a los demás clústeres.
 
-    $$
-    b(k) = \displaystyle\frac{1}{\lvert C\rvert-1} \sum_{c_p \in C} d(c_k, c_p)
-    $$
+$$
+b(k) = \displaystyle\frac{1}{\lvert C\rvert-1} \sum_{c_p \in C} d(c_k, c_p)
+$$
 
     La formula para calcular el valor de Silhouette $S$ es la siguiente:
 
